@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed | PotonTable</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            animation: confettiFall 3s ease-in-out forwards;
+            opacity: 0;
+            z-index: 10;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0); opacity: 1; }
+            100% { transform: translateY(500px) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body style="overflow: auto; overflow-x: hidden;">
+    <div class="blob blob-1" style="position: absolute; border-radius: 50%; filter: blur(80px); z-index: -1; width: 500px; height: 500px; left: 50%; transform: translateX(-50%); top: -200px; background: rgba(16, 185, 129, 0.2);"></div>
+    <nav class="navbar">
+        <a href="index.html" class="logo">PotonTable</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html" class="cart-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                <span class="cart-count">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <main class="container" style="text-align: center; max-width: 600px; padding-top: 5rem; position: relative; z-index: 20;">
+        <div id="confetti-container"></div>
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; margin-bottom: 2rem; box-shadow: 0 0 30px rgba(16, 185, 129, 0.3); animation: pulse-glow 2s infinite;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h1 class="page-title" style="margin-bottom: 0.5rem; font-size: 3rem;">Order Confirmed!</h1>
+        <p style="color: var(--text-secondary); font-size: 1.25rem; margin-bottom: 2rem;">Your order (<span id="orderIdDisplay" style="font-weight: bold; color: var(--primary-color);"></span>) has been sent to the kitchen.</p>
+        
+        <div style="background: var(--surface-color); padding: 2.5rem; border-radius: var(--border-radius); margin-bottom: 2rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent-color), var(--info));"></div>
+            <h3 style="margin-bottom: 1rem; color: var(--text-secondary); font-weight: 500;">Current Status</h3>
+            <div id="orderStatusDisplay" class="status-badge status-Pending" style="font-size: 1.5rem; padding: 0.5rem 1.5rem; border-radius: 30px;">Pending</div>
+            <div id="waitTimeDisplay" style="margin-top: 1.5rem; font-size: 1.1rem; font-weight: 700; color: var(--info);">Estimated Wait: ~15 mins</div>
+            <p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--text-secondary);">The kitchen will update your order status in real-time. Relax while we prepare your meal.</p>
+        </div>
+
+        <!-- New Feature: Order Receipt Summary -->
+        <div id="orderReceipt" style="background: var(--surface-color); padding: 2rem; border-radius: var(--border-radius); margin-bottom: 2.5rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); text-align: left; display: none; animation: fadeIn 0.8s ease-out;">
+            <h3 style="margin-bottom: 1.5rem; color: var(--primary-color);">Order Summary</h3>
+            <div id="receiptItems" style="margin-bottom: 1.5rem;"></div>
+            <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.25rem; border-top: 2px dashed var(--border-color); padding-top: 1.5rem; color: var(--primary-color);">
+                <span>Total Amount</span>
+                <span id="receiptTotal">₹0.00</span>
+            </div>
+        </div>
+        
+        <a href="menu.html" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1.1rem;">Order More Items</a>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.scrollTo(0, 0); // Force scroll to top
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('id');
+            
+            if(!orderId) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Confetti effect
+            const container = document.getElementById('confetti-container');
+            const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
+            for(let i=0; i<30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = (Math.random() * 0.5) + 's';
+                container.appendChild(confetti);
+            }
+            
+            // Poll for status updates & render receipt -> Transitioned to Supabase Realtime!
+            const renderConfirmationData = (myOrder) => {
+                const badge = document.getElementById('orderStatusDisplay');
+                if(badge.textContent !== myOrder.status && badge.textContent !== 'Pending' && badge.textContent !== 'Error') {
+                    if(typeof showToast === 'function') showToast(`Status updated to: ${myOrder.status}`);
+                    // Animate badge update
+                    badge.style.transform = 'scale(1.1)';
+                    setTimeout(() => badge.style.transform = 'scale(1)', 300);
+                }
+                
+                badge.textContent = myOrder.status;
+                badge.className = `status-badge status-${myOrder.status}`;
+                
+                const waitTimeEl = document.getElementById('waitTimeDisplay');
+                if(waitTimeEl) {
+                    if (myOrder.status === 'Pending') waitTimeEl.innerHTML = 'Estimated Wait: ~15 mins';
+                    else if (myOrder.status === 'Preparing') waitTimeEl.innerHTML = '<span style="color: var(--warning);">Estimated Wait: 5-10 mins</span>';
+                    else if (myOrder.status === 'Ready') waitTimeEl.innerHTML = '<span style="color: var(--accent-color);">Ready to be served! 🍽️</span>';
+                    else if (myOrder.status === 'Completed') waitTimeEl.style.display = 'none';
+                }
+
+                // Render Receipt once
+                const receiptEl = document.getElementById('orderReceipt');
+                if (receiptEl && receiptEl.style.display === 'none') {
+                    receiptEl.style.display = 'block';
+                    const itemsContainer = document.getElementById('receiptItems');
+                    itemsContainer.innerHTML = (myOrder.items || []).map(item => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <img src="${item.image}" alt="${item.name}" style="width: 50px; height: 50px; border-radius: 8px; object-fit: cover;">
+                                <div>
+                                    <div style="font-weight: 600; color: var(--primary-color);">${item.name}</div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Qty: ${item.quantity}</div>
+                                </div>
+                            </div>
+                            <div style="font-weight: 600;">₹${(item.price * item.quantity).toFixed(2)}</div>
+                        </div>
+                    `).join('');
+                    if (myOrder.total) {
+                        document.getElementById('receiptTotal').textContent = `₹${Number(myOrder.total).toFixed(2)}`;
+                    }
+                }
+            };
+            
+            // 1. Initial Load
+            const initPageData = async () => {
+                const orders = await getOrders();
+                const exists = orders.find(o => o.id == orderId);
+                if(!exists) {
+                    document.getElementById('orderIdDisplay').textContent = 'Not Found';
+                    document.getElementById('orderStatusDisplay').textContent = 'Error';
+                    document.getElementById('orderStatusDisplay').className = "status-badge status-Completed";
+                    document.getElementById('waitTimeDisplay').textContent = 'Order does not exist. (If you just placed it, Supabase RLS policies might be rejecting writes!).';
+                    return;
+                }
+                document.getElementById('orderIdDisplay').textContent = '#' + orderId;
+                renderConfirmationData(exists);
+            };
+            
+            initPageData();
+
+            // 2. Setup Realtime Listener
+            if (window.supabaseClient) {
+                window.supabaseClient.channel('confirmation-status')
+                  .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
+                    (payload) => {
+                        console.log("Chef updated your order real-time!", payload);
+                        renderConfirmationData(payload.new);
+                    }
+                  )
+                  .subscribe();
+            }
+        });
+    </script>
+</body>
+</html>

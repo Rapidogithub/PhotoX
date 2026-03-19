@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Checkout | PotonTable</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar" style="padding-bottom: 0.5rem; justify-content: flex-start; gap: 1rem;">
+        <a href="cart.html" style="color: var(--primary-color);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </a>
+        <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">Checkout</span>
+    </nav>
+
+    <main class="container" style="max-width: 600px; padding-top: 1rem;">
+        
+        <div class="form-group" style="background: var(--surface-color); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border-color);">
+            <label class="form-label">Delivery Address / Table Num</label>
+            <input type="text" id="tableNum" class="form-control" placeholder="e.g. Table 12 or 123 Main St">
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Payment Method</h3>
+            <div class="payment-grid">
+                <div class="payment-card active" onclick="selectPayment(this)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    Credit Card
+                </div>
+                <div class="payment-card" onclick="selectPayment(this)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    Cash / UPI
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-row summary-total" style="border-top: none; font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem;">
+            <span>Total Payable</span>
+            <span id="checkoutTotal">₹0.00</span>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="placeOrderBtn" style="padding: 1.25rem; font-size: 1.1rem; border-radius: 16px;">Place Order</button>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+</html>
