@@ -1,4 +1,0 @@
-# PhotoX
-# PhotoX
-# PhotoX
-# PhotoX
